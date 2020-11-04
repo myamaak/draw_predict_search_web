@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doodle Search!</title>
+    <link class="jsbin" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+    <!--[if lte IE 8]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
+
+
+</head>
+
+<body>
+<button id='draw' onclick="show()">펜</button>
+<button id='erase' onclick="redraw()">지우개</button>
+<input type="file" accept="image/jpeg, image/png" id="userimg" onchange="loadFile(this);">
+
+</br>
+</br>
+<form id="imgForm" action="{{url_for('predict')}}" method="POST" enctype="multipart/form-data">
+<canvas id = "canvas" width="400" height="400" style="border:2px solid #000000;">
+    <script type="text/javascript">
+        $(document).ready(function() {
+            draw();
+        });
+    </script>
+</canvas>
+
+<input type="hidden" id ='url' name="url" >
+<img id="displayImg"/>
+</br>
+</br>
+    <input type="button" value="save" onclick="save()" >
+    <input type="submit" value="predict" id ="predict">
+    <input type="button" value="clear" id="clr" onclick="erase()" >
+</form>
+</body>
+</html>
+<script src="/static/getDrawing.js?u={{ last_updated }}"> </script>

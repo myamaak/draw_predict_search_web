@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>result</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+
+</head>
+<body>
+<h1>Results</h1>
+<div class="results">
+    {%if result%}
+    <h2 style="color:#ff0000;">Looks like a(n) {{ result["prediction"] }} ! </h2>
+    <div id="result_img">
+    </div>
+    <h5>click the image to see them from their original web site</h5>
+    {%else%}
+    <h2 style="color:red;">Nothing to predict ! </h2>
+    {%endif%}
+</div>
+</body>
+</html>
+<script src="{{ url_for('static', filename='getDrawing.js') }}" > </script>
+<script>
+    var data = '{{ result|tojson }}';
+    var JSONObject = JSON.parse(data);
+    var imgurl = JSONObject.imgs;
+    var imglink = JSONObject.hrefs;
+    console.log(imgurl.length);
+    for (i=0; i<imgurl.length ; i++){
+        var a_elem = document.createElement("a");
+        a_elem.href = imglink[i];
+        var img_elem = document.createElement("img");
+        img_elem.src = imgurl[i];
+        document.getElementById("result_img").appendChild(a_elem);
+        a_elem.appendChild(img_elem);
+
+    }
+
+
+
+</script>

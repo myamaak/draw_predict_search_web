@@ -1,0 +1,99 @@
+header {
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  background-color: #ffd139;
+  text-align: center;
+}
+header h1 {
+  font-size: 60px;
+}
+header p {
+  margin-top: 10px;
+}
+button,
+input,
+label {
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+.model-type {
+  align-items: center;
+}
+.model-type button {
+  background-color: #646464;
+  color: white;
+  width: 100px;
+  height: 45px;
+  font-size: 15px;
+  margin: 10px;
+}
+.draw-tools button {
+  width: 100px;
+  height: 30px;
+  background-color: lightgray;
+  color: black;
+  margin: 10px;
+  margin-top: -1px;
+}
+.input-button {
+  display: flex;
+  flex-direction: row;
+  padding-left: 20px;
+  padding-bottom: 10px;
+}
+main .input-button input {
+  width: 100px;
+  height: 30px;
+  background-color: lightgray;
+  color: black;
+  margin: 10px;
+  font-size: 14px;
+}
+label {
+  display: inline-block;
+  width: 100px;
+  height: 22px;
+  padding-top: 8px;
+  text-align: center;
+  line-height: normal;
+  vertical-align: middle;
+  background-color: lightgray;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 10px;
+}
+
+input[type="file"] {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+main #predict {
+  border-radius: 5px;
+  background-color: #f6830f;
+  width: 404px;
+  height: 50px;
+  font-size: 20px;
+  font-weight: bold;
+}
+footer {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #ffd139;
+  text-align: center;
+}
+footer div {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}

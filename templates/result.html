@@ -4,20 +4,72 @@
     <meta charset="UTF-8">
     <title>result</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
-
+    <link rel="stylesheet" href="../static//css/reset-css.css" />
+    <link rel="stylesheet" href="../static/css/result.css" />
 </head>
 <body>
-<h1>Results</h1>
-<div class="results">
+<header>
+    <h1>Doodle Search!</h1>
+    <p>Results</p>
+</header>
+<main>
     {%if result%}
-    <h2 style="color:#ff0000;">Looks like a(n) {{ result["prediction"] }} ! </h2>
-    <div id="result_img">
-    </div>
-    <h5>click the image to see them from their original web site</h5>
+    <h2>Looks like a(n) {{ result["prediction"][0] }} !</h2>
+    <p>The objects we found are as follows.</p>
+    <form id = "tryAgain" action="{{url_for('again')}}" method="POST" enctype="multipart/form-data">
+        <br>
+        <div id="search_other" class = "result_object"></div>
+        <button type="submit" id="search_again">search again</button>
+        <input type="hidden" name="new_keyword" id ="new_keyword">
+        <br>
+    </form>
+    <p>Click the image to see them from their original web site.</p>
+    <div id="result_img" class="result-images"></div>
     {%else%}
-    <h2 style="color:red;">Nothing to predict ! </h2>
+    <h2>Nothing to predict !</h2>
+    <p>Would you like to try one more time?</p>
     {%endif%}
-</div>
+    <p></p>
+    <a href="{{ url_for('home') }}">
+        <button id="button-to-main">Search with another doodle</button>
+    </a>
+</main>
+
+
+<!--<div class="results">-->
+<!--    {%if result%}-->
+<!--    <h2 style="color:#ff0000;">Looks like a(n) {{ result["prediction"][0] }} ! </h2>-->
+<!--    <h5>click the image to see them from their original web site</h5>-->
+<!--    <div id="result_img"></div>-->
+<!--    <h5> Or were you looking for ... </h5>-->
+<!--    <form id = "tryAgain" action="{{url_for('again')}}" method="POST" enctype="multipart/form-data">-->
+<!--    <div id="search_other"></div>-->
+<!--        <input type="hidden" name="new_keyword" id ="new_keyword">-->
+<!--    </form>-->
+<!--    {%else%}-->
+<!--    <h2 style="color:red;">Nothing to predict ! </h2>-->
+<!--    {%endif%}-->
+<!--</div>-->
+
+<footer>
+    <div class="footer-container">
+        <div class="developers">
+            <span>Developers</span>
+            <a href="https://github.com/seunghyoku">Seunghyo Ku</a>
+            <a href="https://github.com/myamaak/">Dayoung Nam</a>
+        </div>
+        <div class="references">
+            <span>References</span>
+            <a href="https://quickdraw.withgoogle.com/">Google QuickDraw</a>
+        </div>
+        <div>
+            <span>Repository</span>
+            <a href="https://github.com/myamaak/draw_predict_search_web"
+            >Github Repository</a
+            >
+        </div>
+    </div>
+</footer>
 </body>
 </html>
 <script src="{{ url_for('static', filename='getDrawing.js') }}" > </script>
@@ -34,9 +86,62 @@
         img_elem.src = imgurl[i];
         document.getElementById("result_img").appendChild(a_elem);
         a_elem.appendChild(img_elem);
+    } //이미지 게시
 
+    var predictions = JSONObject.prediction;
+    for (i=1; i<predictions.length;i++){
+        // var button = document.createElement("input");
+        // button.type = "submit";
+        // button.value = predictions[i];
+        // // button.innerHTML = predictions[i];
+        // button.id = i;
+        // // button.onclick = saveKey(i);
+        // document.getElementById("search_other").appendChild(button);
+        // //버튼 더하기(끝)
+
+        //체크박스 버튼으로 (시작)
+        var button = document.createElement("input");
+        var label = document.createElement("label");
+        button.type = "checkbox";
+        button.value = predictions[i];
+        button.id = i;
+        label.for = i;
+        label.innerHTML = predictions[i];
+        document.getElementById("search_other").appendChild(button);
+        document.getElementById("search_other").appendChild(label);
     }
 
+    $('#tryAgain').submit(function() {
+        // var $btn = $(document.activeElement);
+        // console.log($btn);
+        // var index = $btn.attr('id');
+        // var input = document.getElementById("new_keyword");
+        // var choose = predictions[index];
+        // predictions.splice(index, 1);
+        // predictions.unshift(choose);
+        // input.value = predictions;
+        // console.log(predictions);
+
+        //버튼으로 바로 검색한 경우(끝)
+
+        //라디오 버튼 사용하는 경우(시작)
+        var selectedVal = new Array();
+        var input = document.getElementById("new_keyword");
+        var selected = document.querySelectorAll('input[type="checkbox"]:checked');
+        if (selected.length > 0) {
+            for(var each of selected){
+                selectedVal.push(each.value);
+            }
+            input.value = selectedVal;
+            console.log(input.value);
+
+        }else{
+            alert("you didn't select any search keword!");
+            return false;
+        }
+        return true;
+        // return false to cancel form action
+    });
 
 
 </script>

@@ -4,11 +4,17 @@ var clickX = new Array();
 var clickY = new Array();
 var clickDrag = new Array();
 var paint = false;
-var curColor = "#000000";
-
+var curColor ="rgb(255,255,255)";
+var saveX = new Array();
+var saveY = new Array();
 
 //IE에서는 캔버스 태그를 지원하지 않기 때문에 js에서 만든 후 div에 붙여줘야한다.
 //나중에 시간 나면 그렇게 수정하기
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+context.fillStyle = "rgb(0,0,0)";
+context.fillRect(0, 0, canvas.width, canvas.height);
 
 function loadFile(input){
     if (input.files && input.files[0]) {
@@ -28,33 +34,29 @@ function loadFile(input){
     }
 }
 
-function show(){
-    alert("pen selected!");
-}
-
 
 function draw() {
+    context.fillStyle = "rgb(0,0,0)";
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
-    canvas = document.getElementById('canvas');
-    context = document.getElementById('canvas').getContext("2d");
-
-    $('#canvas').mousedown(function (e) {
-        var mouseX = e.pageX - this.offsetLeft;
+    $('#canvas').mousedown(function (e) { //click
+        var mouseX = e.pageX - this.offsetLeft; //pagex는 좌표 & offset은 부모 element의 좌표와 상대적인 좌표
         var mouseY = e.pageY - this.offsetTop;
 
         paint = true;
         addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
         redraw();
+
     });
 
-    $('#canvas').mousemove(function (e) {
+    $('#canvas').mousemove(function (e) { //dragging
         if (paint) {
             addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
             redraw();
         }
     });
 
-    $('#canvas').mouseup(function (e) {
+    $('#canvas').mouseup(function (e) {  //release
         paint = false;
     });
 }
@@ -62,15 +64,16 @@ function draw() {
 function addClick(x, y, dragging) {
     clickX.push(x);
     clickY.push(y);
-    clickDrag.push(dragging);
+    clickDrag.push(dragging); //T/F value
 }
 
 function redraw() {
-
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+    context.clearRect(0, 0, canvas.width, canvas.height); // Clears the canvas
+    context.fillStyle = "rgb(0,0,0)";//fillback
+    context.fillRect(0, 0, canvas.width, canvas.height); //fillback
     context.strokeStyle = curColor;
     context.lineJoin = "round";
-    context.lineWidth = 3;
+    context.lineWidth = 1;
     for (var i = 0; i < clickX.length; i++) {
         context.beginPath();
         if (clickDrag[i] && i) {
@@ -81,14 +84,19 @@ function redraw() {
         context.lineTo(clickX[i], clickY[i]);
         context.closePath();
         context.stroke();
+
     }
 }
 
 function erase(){
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    context.fillStyle = "rgb(0,0,0)";//fillback
+    context.fillRect(0, 0, canvas.width, canvas.height); //fillback
     clickX = [];
     clickY = [];
     clickDrag = [];
+    saveX = [];
+    saveY = [];
 }
 
 function fillCanvasBackgroundWithColor(canvas, color) {
@@ -126,7 +134,9 @@ function save() {
     var image = document.getElementById('displayImg')
     var url = document.getElementById('url');
     var canvas = document.getElementById('canvas');
-    fillCanvasBackgroundWithColor(canvas, 'white');
-    image.src = canvas.toDataURL();
+    fillCanvasBackgroundWithColor(canvas, 'rgb(0,0,0)');
+    // image.src = canvas.toDataURL(); // save 눌렀을때 이미지 하나 더 뜨는 거 없애려면 이거 지우기
     url.value = canvas.toDataURL();
+    console.log("image saved!");
+    // url.value = [saveX, saveY];
 }

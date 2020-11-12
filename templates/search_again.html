@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>result</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+    <link rel="stylesheet" href="../static//css/reset-css.css" />
+    <link rel="stylesheet" href="../static/css/again.css" />
+
+</head>
+<body>
+<header>
+    <h1>Doodle Search!</h1>
+    <p>Results</p>
+</header>
+<main>
+    {%if result%}
+    <h2>you searched for {{ result["prediction"][0] }} ! </h2>
+    <p>Click the image to see them from their original web site.</p>
+    <div id="result_img" class="result-images"></div>
+    {%else%}
+    <h2>Nothing to predict !</h2>
+    <p>Would you like to try one more time?</p>
+    {%endif%}
+    <p></p>
+    <a href="{{ url_for('home') }}">
+        <button id="button-to-main">Search with another doodle</button>
+    </a>
+</main>
+<footer>
+    <div class="footer-container">
+        <div class="developers">
+            <span>Developers</span>
+            <a href="https://github.com/seunghyoku">Seunghyo Ku</a>
+            <a href="https://github.com/myamaak/">Dayoung Nam</a>
+        </div>
+        <div class="references">
+            <span>References</span>
+            <a href="https://quickdraw.withgoogle.com/">Google QuickDraw</a>
+        </div>
+        <div>
+            <span>Repository</span>
+            <a href="https://github.com/myamaak/draw_predict_search_web"
+            >Github Repository</a
+            >
+        </div>
+    </div>
+</footer>
+</body>
+</html>
+
+
+
+<script>
+    var data = '{{ result|tojson }}';
+    var JSONObject = JSON.parse(data);
+    var imgurl = JSONObject.imgs;
+    var imglink = JSONObject.hrefs;
+    console.log(imgurl.length);
+    for (i=0; i<imgurl.length ; i++){
+        var a_elem = document.createElement("a");
+        a_elem.href = imglink[i];
+        var img_elem = document.createElement("img");
+        img_elem.src = imgurl[i];
+        document.getElementById("result_img").appendChild(a_elem);
+        a_elem.appendChild(img_elem);
+    }
+</script>

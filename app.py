@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
 from flask import Flask, render_template,url_for,request
 from tensorflow.python.framework import ops
-# ops.reset_default_graph()
+from tensorflow.python.keras.backend import set_session
 import matplotlib.pyplot as plt
 from matplotlib import image
 import urllib
@@ -11,6 +11,10 @@ import base64
 import cv2
 from io import BytesIO
 import os
+from yolo import YOLO
+from PIL import Image
+import re
+
 from selenium import webdriver
 import time
 
@@ -20,6 +24,9 @@ for idx, label in enumerate (file) :
     categories_dict[idx] = label.strip()
 # file.close()
 
+session = tf.compat.v1.Session()
+graph = tf.compat.v1.get_default_graph()
+set_session(session)
 single_model = load_model('keras.h5')
 
 # example = cv2.imread('apple.PNG', cv2.IMREAD_GRAYSCALE)
@@ -45,7 +52,8 @@ app = Flask(__name__, template_folder = 'templates')
 app.config["CACHE_TYPE"] = "null"
 
 single_model = load_model('keras.h5')
-
+single_model._make_predict_function()
+# 에러 방지.
 #flask 인스턴스를 생성한다.
 #__name__ is the name of the current Python module.
 def dir_last_updated(folder):
@@ -57,19 +65,21 @@ def dir_last_updated(folder):
 def home():
     return render_template('drawingCanvas.html',last_updated=dir_last_updated('static'))
 
+
 @app.route('/predict', methods=['POST'] )
-#POST하면 predict 함수를 실행
 def predict():
-    if request.method == 'POST' and request.form['url']:
-    # if request.method == 'POST':
+    search_result = {}
+    if request.form.get('cnn'):
+    # id가 아니라 name값으로 가져온다.
         img_url = request.form['url']
         img_url = img_url.split(",")[1]
         decode_img = base64.b64decode(img_url)
         image_data = BytesIO(decode_img)
         img = np.asarray(bytearray(decode_img), dtype="uint8")
         img = cv2.imdecode(img, cv2.IMREAD_GRAYSCALE)
+
     #이번에 추가한 코드
-        img = (img < 128).astype(np.uint8) #흑백 전환시켜줌
+        # img = (img < 128).astype(np.uint8) #이미지를 흑백 전환시켜줌
     # coords는 행과 열이 영벡터가 아닌 동안의 벡터의 시작점을 [x, y] 행렬로 값을 추출하고, 이들의 값 차이가 바로 너비와 높이가 된다.
         coords = cv2.findNonZero(img)
     # 그림이 시작되는 x값, y값, 그림의 너비 w 및 높이 h를 획득합니다.
@@ -88,30 +98,65 @@ def predict():
         img_vector = np.pad(img, pad_width=1, mode='constant', constant_values=0)
 
     #이번에 추가한 코드 끝 #https://github.com/moonyeol/quick_draw_copycat  참고
-        # img = 255 - img
-        #이미지 데이터 읽어서 img format으로 만들어주기
-        # resize_img = cv2.resize(img, (28,28), interpolation = cv2.INTER_AREA) #사이즈를 줄일 때 쓰는 보간법
-        # img_vector = np.asarray(resize_img, dtype="uint8")
+        # img_vector /=255.0 #선이 얇아짐...? 거의 rain이나 sun으로 인식함(ㅋㅋㅋ)
+        # 안 하면 포도 테디베어...line을 guitar로 판단함
         img_vector = img_vector.reshape(28,28,1).astype('float32')
-        # img_vector /=255.0
-        # cv2.imshow("show img", img_vector)
-        # cv2.waitKey(0)
+        cv2.imshow("show img", img_vector)
+        cv2.waitKey(0)
 
         global single_model
+        with session.as_default():
+            with session.graph.as_default():
+                pred = single_model.predict(np.expand_dims(img_vector, axis=0))[0]
+                ind = (-pred).argsort()[:5]
+                latex = [categories_dict[x] for x in ind]
+                print(latex)
+                key = search_keyword([latex[0]])
+                search_result = search_image(key)
+                search_result["prediction"] = latex
+    # predict with yolo
+    elif request.form.get('yolo'):
+        img_url = request.form['url']
+        img_url = img_url.split(",")[1]
+        decode_img = base64.b64decode(img_url)
+        # image_data = Image.open(BytesIO(decode_img))
 
-        pred = single_model.predict(np.expand_dims(img_vector, axis=0))[0]
-        ind = (-pred).argsort()[:5]
-        latex = [categories_dict[x] for x in ind]
-        print(latex)
-        key = search_keyword([latex[0]])
+        # image_data = Image.open('apple1.png')
+        f = open("saved.png", "wb")
+        f.write(BytesIO(decode_img).getvalue())
+        f.close
+        # cv2.imshow("show img", np.array(image_data))
+        # cv2.waitKey(0)
+
+        predict = do_object_detection('snowman.png', 'trained_weights_final.h5', 'class_names.txt')
+        key = search_keyword([predict["predicted_class"]])
         search_result = search_image(key)
-        search_result["prediction"] = latex
+        search_result["prediction"] = [predict["predicted_class"]]
+
     else:
         print("no input img")
     return render_template('result.html', result = search_result)
 
+@app.route('/again', methods=['POST'] )
+def again():
+    if request.method == 'POST' and request.form['new_keyword']:
+        keyword = request.form['new_keyword']
+        keyword = search_keyword(keyword)
+        search_result = search_image(keyword)
+        search_result["prediction"] = [keyword]
+    return render_template('search_again.html', result = search_result)
+
+
+def do_object_detection(image, model_path, class_path):
+    yolo = YOLO(model_path=model_path, classes_path=class_path)
+    image = Image.open(image)
+    result_image = yolo.detect_image(image)
+    return result_image
+
 def search_keyword(result):
     #만약 이미지 하나만 있다면 'a '+result
+    if type(result) is not list:
+        result = result.split(",")
     if len(result)== 1:
         for i in result:
             keyword = 'a '+ i
@@ -140,7 +185,7 @@ def search_image(keyword):
     element.submit()
     #검색 함
     selected = {"imgs":[], "hrefs":[]}
-    for i in range(1,6):
+    for i in range(1,7):
         i = str(i)
         tag1 = driver.find_element_by_xpath("//*[@id=\"islrg\"]/div[1]/div["+i+"]/a[1]/div[1]/img")
         selected_img = tag1.get_attribute("src")
@@ -149,6 +194,58 @@ def search_image(keyword):
         selected["imgs"].append(selected_img)
         selected["hrefs"].append(selected_href)
     return selected
+
+
+# import numpy as np
+# import cairocffi as cairo
+#
+#
+# def vector_to_raster(vector_images, side=28, line_diameter=16, padding=16, bg_color=(0, 0, 0), fg_color=(1, 1, 1)):
+#     """
+#     padding and line_diameter are relative to the original 256x256 image.
+#     """
+#
+#     original_side = 256.
+#
+#     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, side, side)
+#     ctx = cairo.Context(surface)
+#     ctx.set_antialias(cairo.ANTIALIAS_BEST)
+#     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+#     ctx.set_line_join(cairo.LINE_JOIN_ROUND)
+#     ctx.set_line_width(line_diameter)
+#
+#     # scale to match the new size
+#     # add padding at the edges for the line_diameter
+#     # and add additional padding to account for antialiasing
+#     total_padding = padding * 2. + line_diameter
+#     new_scale = float(side) / float(original_side + total_padding)
+#     ctx.scale(new_scale, new_scale)
+#     ctx.translate(total_padding / 2., total_padding / 2.)
+#
+#     raster_images = []
+#     for vector_image in vector_images:
+#         # clear background
+#         ctx.set_source_rgb(*bg_color)
+#         ctx.paint()
+#
+#         bbox = np.hstack(vector_image).max(axis=1)
+#         offset = ((original_side, original_side) - bbox) / 2.
+#         offset = offset.reshape(-1, 1)
+#         centered = [stroke + offset for stroke in vector_image]
+#
+#         # draw strokes, this is the most cpu-intensive part
+#         ctx.set_source_rgb(*fg_color)
+#         for xv, yv in centered:
+#             ctx.move_to(xv[0], yv[0])
+#             for x, y in zip(xv, yv):
+#                 ctx.line_to(x, y)
+#             ctx.stroke()
+#
+#         data = surface.get_data()
+#         raster_image = np.copy(np.asarray(data)[::4])
+#         raster_images.append(raster_image)
+#
+#     return raster_images
 
 #/html/body/div[2]/c-wiz/div[3]/div[1]/div/div/div/div/div[1]/div[1]/div[1]/a[1]/div[1]/img
 # //*[@id="islrg"]/div[1]/div[1]/a[1]/div[1]/img

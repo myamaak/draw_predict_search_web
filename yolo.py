@@ -13,7 +13,6 @@ from tensorflow.keras.utils import multi_gpu_model
 
 import json
 from collections import OrderedDict
-# /home/ubuntu/keras-yolo3/model_data/tiny_yolo_anchors.txt dp dlTdmfemt
 
 tf.compat.v1.disable_eager_execution()
 
@@ -24,7 +23,7 @@ class YOLO(object):
         "classes_path": 'model_data/categories.txt',
         "score": 0.2,
         "iou": 0.15,
-        "model_image_size": (32, 32),
+        "model_image_size": (32,32),
         "gpu_num": 1,
     }
 
@@ -40,7 +39,7 @@ class YOLO(object):
         self.__dict__.update(kwargs)  # and update with user overrides
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
-        self.sess = tf.compat.v1.keras.backend.get_session()
+        self.sess = K.get_session()
         self.boxes, self.scores, self.classes = self.generate()
 
     def _get_class(self):
@@ -124,18 +123,15 @@ class YOLO(object):
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
         print(out_classes)
 
-        # font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
-        #                           size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
-        thickness = (image.size[0] + image.size[1]) // 300
+        detected_object = []
+        scores_of_object = []
+        coord = []
 
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
             box = out_boxes[i]
             score = out_scores[i]
 
-            label = '{} {:.2f}'.format(predicted_class, score)
-            draw = ImageDraw.Draw(image)
-            # label_size = draw.textsize(label, font)
 
             top, left, bottom, right = box
             top = max(0, np.floor(top + 0.5).astype('int32'))
@@ -143,34 +139,21 @@ class YOLO(object):
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
             right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
 
-            # ---------------- * ---------------- json 반환하는 곳
-            file_data = OrderedDict()
-            file_data['predicted_class'] = predicted_class
-            file_data['score'] = score
-            # print(json.dumps(file_data, ensure_ascii=False, indent='\t'))
+            print(predicted_class, score, left, top, right, bottom)
+            if (left ,top ,right ,bottom) not in coord:
+                detected_object.append(predicted_class)
+                scores_of_object.append(score)
+                coord.append((left, top, right, bottom))
+        #       높은 확률부터 출력된다는 전제..
+        while len(detected_object) > 5:
+            min_id = scores_of_object.index(min(scores_of_object))
+            detected_object.pop(min_id)
 
-            # print(label, (left, top), (right, bottom))
+        objects = {"detected_object": detected_object,
+                   "scores" : scores_of_object,
+                   "coord" : coord}
 
-            # if top - label_size[1] >= 0:
-            #     text_origin = np.array([left, top - label_size[1]])
-            # else:
-            #     text_origin = np.array([left, top + 1])
-            #
-            # # My kingdom for a good redistributable image drawing library.
-            # for i in range(thickness):
-            #     draw.rectangle(
-            #         [left + i, top + i, right - i, bottom - i],
-            #         # outline=self.colors[c])
-            #         outline=(255))
-            # draw.rectangle(
-            #     [tuple(text_origin), tuple(text_origin + label_size)],
-            #     # fill=self.colors[c])
-            #     outline=(255))
-            # # draw.text(text_origin, label, fill=(0, 0, 0), font=font)
-            # draw.text(text_origin, label, fill=(0), font=font)
-            # del draw
-
-        return file_data
+        return objects
 
     def close_session(self):
         self.sess.close()

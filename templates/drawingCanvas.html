@@ -28,16 +28,15 @@
                     enctype="multipart/form-data"
             >
                 <div class="model-type" style="align-content: center">
-                    <button type="submit" name="cnn" value="cnn" id="cnn">CNN</button>
-                    <button type="submit" name="yolo" value="yolo" id="yolo">YOLO</button>
-                    <!--        radio button으로 바꿔서 어떤 모델로 확인할건지 전환.. 둘 다 쓰게되면!-->
+                    <button type="submit" name="cnn" value="cnn" id="cnn">single object</button>
+                    <button type="submit" name="yolo" value="yolo" id="yolo">multiple object</button>
                 </div>
 
                 <canvas
                         id="canvas"
                         width="400"
                         height="400"
-                        style="border: 2px solid #000000"
+                        style="border: 2px solid lightgoldenrodyellow"
                 >
                     <script type="text/javascript">
                         $(document).ready(function () {
@@ -59,20 +58,10 @@
                     />
                     <label for="userimg">Upload</label>
                 </div>
-                <input type="submit" value="Search" id="predict" />
             </form>
         </div>
     </div>
 </main>
-
-<!--<input type="hidden" id ='url' name="url" >-->
-<!--<img id="displayImg"/>-->
-<!--</br>-->
-<!--</br>-->
-<!--    <input type="button" value="save" onclick="save()" >-->
-<!--    <input type="submit" value="predict" id ="predict">-->
-<!--    <input type="button" value="clear" id="clr" onclick="erase()" >-->
-<!--</form>-->
 
 <footer>
     <div class="footer-container">
@@ -97,3 +86,15 @@
 </body>
 </html>
 
+<script>
+    $('#imgForm').submit(function() {
+        var input = document.getElementById("url");
+        if(input.value.length == 0){
+            alert("Please save the image to start searching!");
+            return false;
+        }
+        return true;
+
+    });
+
+</script>

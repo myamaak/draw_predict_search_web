@@ -18,15 +18,20 @@ context.fillRect(0, 0, canvas.width, canvas.height);
 
 function loadFile(input){
     if (input.files && input.files[0]) {
-        document.getElementById("canvas").style.display = "none";
-        document.getElementById("displayImg").style.display = "block";
+
         var reader = new FileReader();
 
         reader.onload = function (e) {
-            $('#displayImg')
-                .attr('src', e.target.result)
-                .width(400)
-                .height(400);
+            // $('#displayImg')
+            //     .attr('src', e.target.result)
+            //     .width
+            //         classes_dict = {}(400)
+            //     .height(400);
+            var loadimg = new Image();
+            loadimg.src = e.target.result;
+            loadimg.onload = function (){
+                context.drawImage(loadimg, 0,0,400,400);
+            };
         };
 
         reader.readAsDataURL(input.files[0]);
@@ -73,7 +78,7 @@ function redraw() {
     context.fillRect(0, 0, canvas.width, canvas.height); //fillback
     context.strokeStyle = curColor;
     context.lineJoin = "round";
-    context.lineWidth = 1;
+    context.lineWidth = 5;
     for (var i = 0; i < clickX.length; i++) {
         context.beginPath();
         if (clickDrag[i] && i) {

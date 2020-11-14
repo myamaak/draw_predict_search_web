@@ -14,9 +14,12 @@ import os
 from yolo import YOLO
 from PIL import Image
 import re
+import time
 
 from selenium import webdriver
-import time
+
+import image_utils
+from image_utils import crop_image, normalize_image, convert_to_rgb, convert_to_np
 
 file = open('class_names.txt', 'r')
 categories_dict = {}
@@ -74,33 +77,48 @@ def predict():
         img_url = request.form['url']
         img_url = img_url.split(",")[1]
         decode_img = base64.b64decode(img_url)
+
+    #     시작
         image_data = BytesIO(decode_img)
-        img = np.asarray(bytearray(decode_img), dtype="uint8")
-        img = cv2.imdecode(img, cv2.IMREAD_GRAYSCALE)
+        img = Image.open(image_data)
+        img = img.convert("RGBA")
+        image_cropped = crop_image(img)  # crop the image and resize to 28x28
+        image_normalized = normalize_image(image_cropped)  # normalize color after crop
+        img_rgb = convert_to_rgb(image_normalized)
+        image_np = convert_to_np(img_rgb)
+        image_np = 1-image_np
+    #  끝
 
-    #이번에 추가한 코드
-        # img = (img < 128).astype(np.uint8) #이미지를 흑백 전환시켜줌
-    # coords는 행과 열이 영벡터가 아닌 동안의 벡터의 시작점을 [x, y] 행렬로 값을 추출하고, 이들의 값 차이가 바로 너비와 높이가 된다.
-        coords = cv2.findNonZero(img)
-    # 그림이 시작되는 x값, y값, 그림의 너비 w 및 높이 h를 획득합니다.
-        x, y, w, h = cv2.boundingRect(coords)
+    #     시작
+    #     img = np.asarray(bytearray(decode_img), dtype="uint8")
+    #     img = cv2.imdecode(img, cv2.IMREAD_GRAYSCALE)
+    #
+    # #이번에 추가한 코드
+    #     # img = (img < 128).astype(np.uint8) #이미지를 흑백 전환시켜줌
+    # # coords는 행과 열이 영벡터가 아닌 동안의 벡터의 시작점을 [x, y] 행렬로 값을 추출하고, 이들의 값 차이가 바로 너비와 높이가 된다.
+    #     coords = cv2.findNonZero(img)
+    # # 그림이 시작되는 x값, y값, 그림의 너비 w 및 높이 h를 획득합니다.
+    #     x, y, w, h = cv2.boundingRect(coords)
+    #
+    # # 너비와 높이의 크기를 비교하여 그림을 중심에 위치할 수 있도록 설정합니다.
+    #     if h > w:
+    #         norm = np.zeros((h + 2, h + 2), dtype=np.float32)
+    #         norm[1:-1, int((h - w) / 2) + 1:int((h - w) / 2) + 1 + w] = img[y:y + h, x:x + w]
+    #     else:
+    #         norm = np.zeros((w + 2, w + 2), dtype=np.float32)
+    #         norm[int((w - h) / 2) + 1:int((w - h) / 2) + 1 + h, 1:-1] = img[y:y + h, x:x + w]
+    #
+    # # 동일한 비율로 cropping 된 그림을 모델 입력 데이터에 맞게 1px 테두리 패딩의 28x28 픽셀 대응 2차원 NumPy 행렬로 변환시킨다.
+    #     img = cv2.resize(norm, (26, 26), interpolation=cv2.INTER_AREA)
+    #     img_vector = np.pad(img, pad_width=1, mode='constant', constant_values=0)
+    #
+    # #이번에 추가한 코드 끝 #https://github.com/moonyeol/quick_draw_copycat  참고
+    #     img_vector /=255.0 #선이 얇아짐...? 거의 rain이나 sun으로 인식함(ㅋㅋㅋ)
+    #     # 안 하면 포도 테디베어...line을 guitar로 판단함
+    # 끝
 
-    # 너비와 높이의 크기를 비교하여 그림을 중심에 위치할 수 있도록 설정합니다.
-        if h > w:
-            norm = np.zeros((h + 2, h + 2), dtype=np.float32)
-            norm[1:-1, int((h - w) / 2) + 1:int((h - w) / 2) + 1 + w] = img[y:y + h, x:x + w]
-        else:
-            norm = np.zeros((w + 2, w + 2), dtype=np.float32)
-            norm[int((w - h) / 2) + 1:int((w - h) / 2) + 1 + h, 1:-1] = img[y:y + h, x:x + w]
+        img_vector = image_np.reshape(28,28,1).astype('float32')
 
-    # 동일한 비율로 cropping 된 그림을 모델 입력 데이터에 맞게 1px 테두리 패딩의 28x28 픽셀 대응 2차원 NumPy 행렬로 변환시킨다.
-        img = cv2.resize(norm, (26, 26), interpolation=cv2.INTER_AREA)
-        img_vector = np.pad(img, pad_width=1, mode='constant', constant_values=0)
-
-    #이번에 추가한 코드 끝 #https://github.com/moonyeol/quick_draw_copycat  참고
-        # img_vector /=255.0 #선이 얇아짐...? 거의 rain이나 sun으로 인식함(ㅋㅋㅋ)
-        # 안 하면 포도 테디베어...line을 guitar로 판단함
-        img_vector = img_vector.reshape(28,28,1).astype('float32')
         cv2.imshow("show img", img_vector)
         cv2.waitKey(0)
 
@@ -121,18 +139,23 @@ def predict():
         decode_img = base64.b64decode(img_url)
         # image_data = Image.open(BytesIO(decode_img))
 
+        image_data = BytesIO(decode_img)
+        image_data = Image.open(image_data)
         # image_data = Image.open('apple1.png')
-        f = open("saved.png", "wb")
-        f.write(BytesIO(decode_img).getvalue())
-        f.close
+        image_data = image_data.resize((64,64), Image.ANTIALIAS)
+        image_data.save("saved.png")
+
         # cv2.imshow("show img", np.array(image_data))
         # cv2.waitKey(0)
 
-        predict = do_object_detection('snowman.png', 'trained_weights_final.h5', 'class_names.txt')
-        key = search_keyword([predict["predicted_class"]])
-        search_result = search_image(key)
-        search_result["prediction"] = [predict["predicted_class"]]
-
+        predict = do_object_detection('saved.png', 'trained_weights_final.h5', 'categories.txt')
+        if len(predict["detected_object"]) > 0:
+            key = search_keyword(predict["detected_object"])
+            search_result = search_image(key)
+            search_result["prediction"] = [key]
+            print(predict)
+        else:
+            search_result = []
     else:
         print("no input img")
     return render_template('result.html', result = search_result)
@@ -150,7 +173,10 @@ def again():
 def do_object_detection(image, model_path, class_path):
     yolo = YOLO(model_path=model_path, classes_path=class_path)
     image = Image.open(image)
+    cv2.imshow("show img", np.array(image))
+    cv2.waitKey(0)
     result_image = yolo.detect_image(image)
+
     return result_image
 
 def search_keyword(result):

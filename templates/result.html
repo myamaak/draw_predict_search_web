@@ -19,7 +19,7 @@
     <form id = "tryAgain" action="{{url_for('again')}}" method="POST" enctype="multipart/form-data">
         <br>
         <div id="search_other" class = "result_object"></div>
-        <button type="submit" id="search_again">search again</button>
+<!--        <button type="submit" id="search_again">search again</button>-->
         <input type="hidden" name="new_keyword" id ="new_keyword">
         <br>
     </form>
@@ -109,6 +109,14 @@
         label.innerHTML = predictions[i];
         document.getElementById("search_other").appendChild(button);
         document.getElementById("search_other").appendChild(label);
+    }
+
+    if(predictions.length > 1){
+        var submit_b = document.createElement("button");
+        submit_b.type = "submit";
+        submit_b.id = "search_again";
+        submit_b.innerHTML ="search again";
+        document.getElementById("search_other").appendChild(submit_b);
     }
 
     $('#tryAgain').submit(function() {

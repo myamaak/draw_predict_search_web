@@ -1,30 +1,27 @@
-header {
+.main-container {
   display: flex;
   flex-direction: column;
-  padding: 40px;
-  background-color: #ffd139;
-  text-align: center;
-}
-header h1 {
-  font-size: 60px;
-}
-header p {
-  font-size: 20px;
-  margin-top: 10px;
+  align-items: center;
 }
 main {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 35px;
+  height: 700px;
 }
-
+button,
+img {
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
 main .result_object {
   display: flex;
   align-items: center;
 }
 
-#search_again ,
+#search_again,
 img {
   border: none;
   cursor: pointer;
@@ -50,7 +47,6 @@ p {
   text-align: center;
 }
 
-
 main #result_img p {
   font-size: 17px;
   margin: 10px;
@@ -63,6 +59,12 @@ main #result_img p {
   margin: 5px;
 }
 
+#result_img {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
 #button-to-main {
   width: 500px;
   height: 50px;
@@ -72,15 +74,10 @@ main #result_img p {
   margin: 10px;
 }
 
-footer {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  background-color: #ffd139;
-  text-align: center;
-}
-footer div {
-  display: flex;
-  flex-direction: column;
-  padding: 5px;
+#search_again {
+  width: 150px;
+  background-color: lightgray;
+  align-items: center;
+  padding-left: 38px;
+  font-weight: bold;
 }

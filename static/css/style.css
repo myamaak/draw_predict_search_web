@@ -1,16 +1,3 @@
-header {
-  display: flex;
-  flex-direction: column;
-  padding: 40px;
-  background-color: #ffd139;
-  text-align: center;
-}
-header h1 {
-  font-size: 60px;
-}
-header p {
-  margin-top: 10px;
-}
 button,
 input,
 label {
@@ -22,18 +9,23 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
+  margin-top: 50px;
+  height: 550px;
+  padding-bottom: 20px;
 }
 .model-type {
-  align-items: center;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
 }
-.model-type button {
+.model-type #cnn,
+#yolo {
   background-color: #646464;
   color: white;
-  width: 100px;
+  width: 190px;
   height: 45px;
   font-size: 15px;
-  margin: 10px;
+  margin-bottom: 10px;
 }
 .draw-tools button {
   width: 100px;
@@ -71,7 +63,7 @@ label {
   margin: 10px;
 }
 
-input[type="file"] {
+input[type='file'] {
   position: absolute;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
@@ -84,16 +76,4 @@ main #predict {
   height: 50px;
   font-size: 20px;
   font-weight: bold;
-}
-footer {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  background-color: #ffd139;
-  text-align: center;
-}
-footer div {
-  display: flex;
-  flex-direction: column;
-  padding: 5px;
 }

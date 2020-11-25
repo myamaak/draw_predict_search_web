@@ -9,13 +9,14 @@
     <!--[if lte IE 8]><script type="text/javascript" src="excanvas.js"></script><![endif]-->
     <link rel="stylesheet" href="../static//css/reset-css.css" />
     <link rel="stylesheet" href="../static/css/style.css" />
+    <link rel="stylesheet" href="../static/css/headerfooter.css" />
 </head>
 
 <body>
 <!--header-->
 <header>
     <h1>Doodle Search!</h1>
-    <p>Search images by your own doodle.</p>
+    <p>Search images with your own doodle.</p>
 </header>
 <!--main-->
 <main>
@@ -29,7 +30,7 @@
             >
                 <div class="model-type" style="align-content: center">
                     <button type="submit" name="cnn" value="cnn" id="cnn">single object</button>
-                    <button type="submit" name="yolo" value="yolo" id="yolo">multiple object</button>
+                    <button type="submit" name="yolo" value="yolo" id="yolo">One or more object</button>
                 </div>
 
                 <canvas
@@ -48,7 +49,6 @@
                     <input type="hidden" id="url" name="url" />
                     <input type="button" value="Save" onclick="save()" />
                     <input type="button" value="Clear" id="clr" onclick="erase()" />
-                    <input type="hidden" id ='url' name="url" >
 
                     <input
                             type="file"

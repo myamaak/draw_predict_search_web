@@ -5,6 +5,7 @@
     <title>result</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
     <link rel="stylesheet" href="../static//css/reset-css.css" />
+    <link rel="stylesheet" href="../static/css/headerfooter.css" />
     <link rel="stylesheet" href="../static/css/again.css" />
 
 </head>
@@ -14,6 +15,7 @@
     <p>Results</p>
 </header>
 <main>
+    <div class="main-container">
     {%if result%}
     <h2>you searched for {{ result["prediction"][0] }} ! </h2>
     <p>Click the image to see them from their original web site.</p>
@@ -23,6 +25,7 @@
     <p>Would you like to try one more time?</p>
     {%endif%}
     <p></p>
+    </div>
     <a href="{{ url_for('home') }}">
         <button id="button-to-main">Search with another doodle</button>
     </a>

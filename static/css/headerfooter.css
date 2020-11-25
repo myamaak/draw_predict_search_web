@@ -1,0 +1,26 @@
+header {
+  display: flex;
+  flex-direction: column;
+  padding: 50px;
+  background-color: #ffd139;
+  text-align: center;
+}
+header h1 {
+  font-size: 60px;
+}
+header p {
+  font-size: 20px;
+  margin-top: 10px;
+}
+footer {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #ffd139;
+  text-align: center;
+}
+footer div {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}

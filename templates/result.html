@@ -5,6 +5,7 @@
     <title>result</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
     <link rel="stylesheet" href="../static//css/reset-css.css" />
+    <link rel="stylesheet" href="../static/css/headerfooter.css" />
     <link rel="stylesheet" href="../static/css/result.css" />
 </head>
 <body>
@@ -13,23 +14,27 @@
     <p>Results</p>
 </header>
 <main>
-    {%if result%}
-    <h2>Looks like a(n) {{ result["prediction"][0] }} !</h2>
-    <p>The objects we found are as follows.</p>
-    <form id = "tryAgain" action="{{url_for('again')}}" method="POST" enctype="multipart/form-data">
-        <br>
-        <div id="search_other" class = "result_object"></div>
-<!--        <button type="submit" id="search_again">search again</button>-->
-        <input type="hidden" name="new_keyword" id ="new_keyword">
-        <br>
-    </form>
-    <p>Click the image to see them from their original web site.</p>
-    <div id="result_img" class="result-images"></div>
-    {%else%}
-    <h2>Nothing to predict !</h2>
-    <p>Would you like to try one more time?</p>
-    {%endif%}
-    <p></p>
+    <div class="main-container">
+        {%if result%}
+        <h2>Looks like a(n) {{ result["prediction"][0] }} !</h2>
+        <p>The objects we found are as follows.</p>
+        <form id = "tryAgain" action="{{url_for('again')}}" method="POST" enctype="multipart/form-data">
+            <br />
+            <div id="search_other" class = "result_object"></div>
+    <!--        <button type="submit" id="search_again">search again</button>-->
+            <input type="hidden" name="new_keyword" id ="new_keyword">
+            <br />
+        </form>
+        <p>Click the image to see them from their original source.</p>
+    </div>
+        <div id="result_img" class="result-images"></div>
+        {%else%}
+        <h2>Nothing to predict !</h2>
+        <p>Would you like to try one more time?</p>
+        {%endif%}
+        <p></p>
+
+
     <a href="{{ url_for('home') }}">
         <button id="button-to-main">Search with another doodle</button>
     </a>
@@ -116,6 +121,11 @@
         submit_b.type = "submit";
         submit_b.id = "search_again";
         submit_b.innerHTML ="search again";
+        submit_b.style.width = '150px';
+        submit_b.style.backgroundColor = 'lightgray';
+        submit_b.style.fontWeight = 'bold';
+        submit_b.style.paddingLeft = '36px';
+        submit_b.style.alignItems = 'center';
         document.getElementById("search_other").appendChild(submit_b);
     }
 

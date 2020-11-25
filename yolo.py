@@ -18,9 +18,9 @@ tf.compat.v1.disable_eager_execution()
 
 class YOLO(object):
     _defaults = {
-        "model_path": 'model_data/yolo.h5',
-        "anchors_path": 'tiny_yolo_anchors.txt',
-        "classes_path": 'model_data/categories.txt',
+        "model_path": 'model/trained_weights_final.h5',
+        "anchors_path": 'model/tiny_yolo_anchors.txt',
+        "classes_path": 'model/categories.txt',
         "score": 0.2,
         "iou": 0.15,
         "model_image_size": (32,32),

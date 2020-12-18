@@ -178,8 +178,9 @@ def search_image(keyword):
     #창 띄우지 않고 실행
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('headless')
-
-    driver = webdriver.Chrome("C:/Users/Administrator/Downloads/chromedriver_win32/chromedriver.exe", chrome_options = chrome_options)
+    path = '/usr/bin/chromedriver'
+    driver = webdriver.Chrome(executable_path=path, chrome_options = chrome_options)
+#     driver = webdriver.Chrome("C:/Users/Administrator/Downloads/chromedriver_win32/chromedriver.exe", chrome_options = chrome_options)
     # 접속할 url
     search_url = "https://www.google.com/imghp?hl=EN"
     # 접속 시도
@@ -201,5 +202,5 @@ def search_image(keyword):
     return selected
 
 if __name__ == "__main__":
-    app.run( threaded=True, debug=True)
+    app.run(host='0.0.0.0', port=80, threaded=True, debug=True)
 

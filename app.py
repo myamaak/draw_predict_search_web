@@ -178,7 +178,7 @@ def search_image(keyword):
     #창 띄우지 않고 실행
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('headless')
-    path = '/usr/bin/chromedriver'
+    path = '/usr/bin'
     driver = webdriver.Chrome(executable_path=path, chrome_options = chrome_options)
 #     driver = webdriver.Chrome("C:/Users/Administrator/Downloads/chromedriver_win32/chromedriver.exe", chrome_options = chrome_options)
     # 접속할 url
